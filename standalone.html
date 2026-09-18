@@ -1,0 +1,2504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DIO To-Do List</title>
+  <meta name="description" content="DIO To-Do List - Complete Single-File Productivity Suite" />
+  <style>
+    /* =========================================================
+       CSS VARIABLES & THEME DEFINITIONS
+       ========================================================= */
+    :root {
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+      /* Light Theme Defaults */
+      --bg-primary: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-subtle: #f1f5f9;
+      --bg-hover: #e2e8f0;
+      --border-color: #e2e8f0;
+      --border-subtle: #cbd5e1;
+
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+
+      --accent-primary: #4f46e5;
+      --accent-primary-hover: #4338ca;
+      --accent-primary-light: #eef2ff;
+      --accent-text: #ffffff;
+
+      --priority-urgent: #ef4444;
+      --priority-urgent-bg: #fef2f2;
+      --priority-high: #f97316;
+      --priority-high-bg: #fff7ed;
+      --priority-medium: #3b82f6;
+      --priority-medium-bg: #eff6ff;
+      --priority-low: #10b981;
+      --priority-low-bg: #ecfdf5;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --radius-full: 9999px;
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      --shadow-floating: 0 12px 24px -4px rgba(79, 70, 229, 0.25);
+
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Dark Theme */
+    [data-theme="dark"] {
+      --bg-primary: #090d16;
+      --bg-surface: #131b2e;
+      --bg-surface-subtle: #1c2742;
+      --bg-hover: #263456;
+      --border-color: #24304d;
+      --border-subtle: #33436a;
+
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #64748b;
+
+      --accent-primary: #6366f1;
+      --accent-primary-hover: #4f46e5;
+      --accent-primary-light: rgba(99, 102, 241, 0.18);
+      --accent-text: #ffffff;
+
+      --priority-urgent: #f87171;
+      --priority-urgent-bg: rgba(239, 68, 68, 0.15);
+      --priority-high: #fb923c;
+      --priority-high-bg: rgba(249, 115, 22, 0.15);
+      --priority-medium: #60a5fa;
+      --priority-medium-bg: rgba(59, 130, 246, 0.15);
+      --priority-low: #34d399;
+      --priority-low-bg: rgba(16, 185, 129, 0.15);
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+      --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.5);
+      --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.6);
+      --shadow-xl: 0 20px 30px rgba(0, 0, 0, 0.7);
+      --shadow-floating: 0 12px 24px -4px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Custom Blue Theme (Deep Ocean) */
+    [data-theme="blue"] {
+      --bg-primary: #0b192c;
+      --bg-surface: #1e3e62;
+      --bg-surface-subtle: #244870;
+      --bg-hover: #2d5584;
+      --border-color: #2d5584;
+      --border-subtle: #3b6b9e;
+
+      --text-primary: #ffffff;
+      --text-secondary: #d1e2f3;
+      --text-muted: #8eb0d4;
+
+      --accent-primary: #0081c9;
+      --accent-primary-hover: #006eb0;
+      --accent-primary-light: rgba(0, 129, 201, 0.22);
+      --accent-text: #ffffff;
+
+      --priority-urgent: #ff6b6b;
+      --priority-urgent-bg: rgba(255, 107, 107, 0.2);
+      --priority-high: #ffa94d;
+      --priority-high-bg: rgba(255, 169, 77, 0.2);
+      --priority-medium: #4dabf7;
+      --priority-medium-bg: rgba(77, 171, 247, 0.2);
+      --priority-low: #51cf66;
+      --priority-low-bg: rgba(81, 207, 102, 0.2);
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.5);
+      --shadow-xl: 0 20px 30px rgba(0, 0, 0, 0.6);
+      --shadow-floating: 0 12px 24px -4px rgba(0, 129, 201, 0.4);
+    }
+
+    /* =========================================================
+       BASE & RESET
+       ========================================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color var(--transition-normal), color var(--transition-normal);
+      overflow-x: hidden;
+    }
+
+    /* Container */
+    .app-container {
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* =========================================================
+       HEADER & MOBILE MEDIA QUERIES (Requested Feature #1 & #2)
+       ========================================================= */
+    .header-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 1.5rem 1.75rem;
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-normal);
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-badge {
+      width: 46px;
+      height: 46px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--accent-primary), #818cf8);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
+
+    .header-titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Prominent Heading */
+    .app-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      line-height: 1.15;
+    }
+
+    /* Header Date */
+    .header-date {
+      font-size: 0.925rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+
+    /* Header Controls */
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .icon-btn {
+      background: var(--bg-surface-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      width: 38px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-color: var(--border-subtle);
+      transform: translateY(-1px);
+    }
+
+    .icon-btn:active {
+      transform: translateY(0);
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+      stroke: currentColor;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Mobile view styles: prominent heading, date, and centered controls */
+    @media (max-width: 640px) {
+      .header-card {
+        padding: 1.25rem 1rem;
+        text-align: center;
+      }
+      .header-top {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+      .header-brand {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.75rem;
+      }
+      .app-title {
+        font-size: 2.15rem !important; /* Larger & more prominent on mobile */
+        font-weight: 900;
+        line-height: 1.1;
+      }
+      .header-date {
+        font-size: 1.05rem !important; /* Scaled proportionately for mobile */
+        font-weight: 600;
+        margin-top: 0.35rem;
+      }
+      .header-controls {
+        width: 100%;
+        justify-content: center; /* Centered control icons on mobile */
+        gap: 0.65rem;
+      }
+      .icon-btn {
+        width: 42px;
+        height: 42px;
+      }
+    }
+
+    /* =========================================================
+       PROGRESS BAR
+       ========================================================= */
+    .progress-section {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: var(--bg-surface-subtle);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-primary), #10b981);
+      border-radius: var(--radius-full);
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 0%;
+    }
+
+    /* =========================================================
+       TASK INPUT AREA & VOICE RECOGNITION
+       ========================================================= */
+    .task-input-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      transition: all var(--transition-normal);
+    }
+
+    .task-input-main {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .task-main-input {
+      flex: 1;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+
+    .task-main-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .voice-btn {
+      background: var(--bg-surface-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      border-radius: var(--radius-lg);
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .voice-btn:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+
+    .voice-btn.listening {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #dc2626;
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .add-task-btn {
+      background: var(--accent-primary);
+      color: var(--accent-text);
+      border: none;
+      border-radius: var(--radius-lg);
+      padding: 0.65rem 1.25rem;
+      font-size: 0.925rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
+
+    .add-task-btn:hover {
+      background: var(--accent-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .voice-banner {
+      display: none;
+      padding: 0.6rem 0.9rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .voice-banner.active {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+    }
+
+    [data-theme="dark"] .voice-banner.active {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    .voice-feedback {
+      display: none;
+      padding: 0.6rem 0.9rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .voice-feedback.success {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+    }
+
+    .voice-feedback.error {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+
+    [data-theme="dark"] .voice-feedback.success {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+
+    [data-theme="dark"] .voice-feedback.error {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+
+    /* Advanced Task Details Dropdown (Collapsible) */
+    .task-details-toggle {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.825rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0;
+    }
+
+    .task-details-toggle:hover {
+      color: var(--text-primary);
+    }
+
+    .task-details-panel {
+      display: none;
+      flex-direction: column;
+      gap: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px dashed var(--border-color);
+    }
+
+    .task-details-panel.open {
+      display: flex;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    .form-select, .form-input {
+      font-family: inherit;
+      font-size: 0.875rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface-subtle);
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color var(--transition-fast);
+    }
+
+    .form-select:focus, .form-input:focus {
+      border-color: var(--accent-primary);
+    }
+
+    /* Rich Text Toolbar for Task Notes */
+    .richtext-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: var(--bg-surface-subtle);
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      border-top-left-radius: var(--radius-md);
+      border-top-right-radius: var(--radius-md);
+      padding: 0.35rem 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .rt-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      border-radius: var(--radius-sm);
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .rt-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .richtext-editor {
+      min-height: 70px;
+      max-height: 160px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-bottom-left-radius: var(--radius-md);
+      border-bottom-right-radius: var(--radius-md);
+      padding: 0.6rem 0.75rem;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      background: var(--bg-surface-subtle);
+      outline: none;
+    }
+
+    .richtext-editor:focus {
+      border-color: var(--accent-primary);
+    }
+
+    /* =========================================================
+       FILTERS, SEARCH & CATEGORY BAR
+       ========================================================= */
+    .controls-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 0.65rem;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.85rem;
+      color: var(--text-muted);
+      pointer-events: none;
+      width: 18px;
+      height: 18px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.6rem 1rem 0.6rem 2.4rem;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-primary-light);
+    }
+
+    .sort-select {
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      outline: none;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-pills {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      scrollbar-width: none;
+    }
+
+    .filter-pills::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-pill {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-size: 0.825rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .filter-pill:hover {
+      background: var(--bg-surface-subtle);
+      color: var(--text-primary);
+    }
+
+    .filter-pill.active {
+      background: var(--accent-primary);
+      color: var(--accent-text);
+      border-color: var(--accent-primary);
+    }
+
+    .filter-count {
+      background: rgba(0, 0, 0, 0.08);
+      padding: 0.1rem 0.4rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+    }
+
+    .filter-pill.active .filter-count {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* =========================================================
+       TASK LIST & DRAG AND DROP
+       ========================================================= */
+    .task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .task-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 1rem 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+      position: relative;
+    }
+
+    .task-item:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-subtle);
+    }
+
+    .task-item.dragging {
+      opacity: 0.5;
+      transform: scale(0.98);
+      border-style: dashed;
+    }
+
+    .task-item.drag-over {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 2px var(--accent-primary);
+    }
+
+    .task-item.completed-task {
+      opacity: 0.7;
+    }
+
+    .task-item.completed-task .task-title-text {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .task-main-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .drag-handle {
+      cursor: grab;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+      padding: 0.1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .task-checkbox {
+      margin-top: 0.25rem;
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-sm);
+      accent-color: var(--accent-primary);
+      cursor: pointer;
+    }
+
+    .task-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      min-width: 0;
+    }
+
+    .task-title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .task-title-text {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      word-break: break-word;
+    }
+
+    /* Badges */
+    .badge {
+      font-size: 0.725rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      text-transform: capitalize;
+    }
+
+    .badge-urgent { background: var(--priority-urgent-bg); color: var(--priority-urgent); }
+    .badge-high { background: var(--priority-high-bg); color: var(--priority-high); }
+    .badge-medium { background: var(--priority-medium-bg); color: var(--priority-medium); }
+    .badge-low { background: var(--priority-low-bg); color: var(--priority-low); }
+
+    .badge-category {
+      background: var(--bg-surface-subtle);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .badge-recurring {
+      background: rgba(129, 140, 248, 0.15);
+      color: #4f46e5;
+    }
+
+    [data-theme="dark"] .badge-recurring {
+      color: #a5b4fc;
+    }
+
+    .task-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      font-size: 0.785rem;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .meta-item.overdue {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .task-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.35rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .action-btn:hover {
+      background: var(--bg-surface-subtle);
+      color: var(--text-primary);
+    }
+
+    .action-btn.delete-btn:hover {
+      color: #ef4444;
+      background: #fef2f2;
+    }
+
+    [data-theme="dark"] .action-btn.delete-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    /* Sub-tasks Section */
+    .subtasks-box {
+      margin-top: 0.35rem;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .subtask-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .subtask-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .subtask-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.3rem 0.5rem;
+      background: var(--bg-surface-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+    }
+
+    .subtask-label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .subtask-label.completed span {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .subtask-add-form {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.2rem;
+    }
+
+    .subtask-input {
+      flex: 1;
+      padding: 0.4rem 0.65rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface-subtle);
+      color: var(--text-primary);
+      font-size: 0.825rem;
+      outline: none;
+    }
+
+    .subtask-input:focus {
+      border-color: var(--accent-primary);
+    }
+
+    .subtask-btn {
+      padding: 0.4rem 0.75rem;
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Notes preview inside task */
+    .task-notes-preview {
+      background: var(--bg-surface-subtle);
+      padding: 0.6rem 0.85rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      border-left: 3px solid var(--accent-primary);
+      margin-top: 0.3rem;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      background: var(--bg-surface);
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius-xl);
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    /* =========================================================
+       MODALS (Pomodoro, Analytics, Shortcuts, Categories)
+       ========================================================= */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      width: 100%;
+      max-width: 540px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.75rem;
+      position: relative;
+      animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalPop {
+      0% { transform: scale(0.95) translateY(10px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.3rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .modal-close:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+
+    /* Pomodoro Timer specific */
+    .pomo-display {
+      text-align: center;
+      padding: 1.5rem 0;
+    }
+
+    .pomo-mode-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .pomo-tab {
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      background: var(--bg-surface-subtle);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .pomo-tab.active {
+      background: var(--accent-primary);
+      color: #fff;
+      border-color: var(--accent-primary);
+    }
+
+    .pomo-time {
+      font-family: var(--font-mono);
+      font-size: 4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: 1.25rem;
+    }
+
+    .pomo-controls {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .pomo-btn {
+      padding: 0.65rem 1.5rem;
+      border-radius: var(--radius-lg);
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+    }
+
+    .pomo-btn.start {
+      background: var(--accent-primary);
+      color: #fff;
+    }
+
+    .pomo-btn.pause {
+      background: #f97316;
+      color: #fff;
+    }
+
+    .pomo-btn.reset {
+      background: var(--bg-surface-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    /* Analytics Charts / Cards */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-surface-subtle);
+      padding: 1rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--accent-primary);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .analytics-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .bar-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .bar-track {
+      height: 8px;
+      background: var(--bg-surface-subtle);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--accent-primary);
+      border-radius: var(--radius-full);
+    }
+
+    /* Shortcuts Table */
+    .shortcuts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .shortcut-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0.65rem;
+      background: var(--bg-surface-subtle);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+    }
+
+    .shortcut-key {
+      font-family: var(--font-mono);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-bottom-width: 2px;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* =========================================================
+       FLOATING SCROLL TO TOP BUTTON (Requested Feature #3)
+       ========================================================= */
+    .scroll-top-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-full);
+      background: var(--accent-primary);
+      color: var(--accent-text);
+      border: none;
+      box-shadow: var(--shadow-floating);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(15px);
+      transition: all var(--transition-normal);
+      z-index: 99;
+    }
+
+    .scroll-top-btn.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .scroll-top-btn:hover {
+      background: var(--accent-primary-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 28px -4px rgba(79, 70, 229, 0.4);
+    }
+
+    .scroll-top-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2.5;
+    }
+
+    /* =========================================================
+       FOOTER (Requested Feature #6)
+       ========================================================= */
+    .app-footer {
+      width: 100%;
+      text-align: center;
+      padding: 1.75rem 1rem;
+      font-size: 0.925rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      margin-top: auto;
+    }
+
+    .app-footer a {
+      color: var(--accent-primary);
+      text-decoration: none;
+      font-weight: 700;
+      transition: color var(--transition-fast);
+    }
+
+    .app-footer a:hover {
+      text-decoration: underline;
+      color: var(--accent-primary-hover);
+    }
+
+    /* Hidden file inputs */
+    #import-file-input {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Scroll To Top Button (Requested Feature #3) -->
+  <button id="scroll-top-btn" class="scroll-top-btn" aria-label="Scroll to top of page" title="Scroll to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
+
+  <div class="app-container">
+    <!-- ==========================================
+         HEADER (Requested Feature #1 & #2)
+         ========================================== -->
+    <header class="header-card">
+      <div class="header-top">
+        <div class="header-brand">
+          <div class="logo-badge">DIO</div>
+          <div class="header-titles">
+            <h1 class="app-title" id="app-title">DIO To-Do List</h1>
+            <p class="header-date" id="header-date">Loading date...</p>
+          </div>
+        </div>
+
+        <!-- Centered Control Icons on Mobile View -->
+        <div class="header-controls">
+          <!-- Pomodoro Timer -->
+          <button class="icon-btn" id="btn-open-pomo" title="Pomodoro Timer" aria-label="Open Pomodoro Timer">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </button>
+          <!-- Analytics Dashboard -->
+          <button class="icon-btn" id="btn-open-analytics" title="Productivity Analytics" aria-label="Open Analytics">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </button>
+          <!-- Keyboard Shortcuts -->
+          <button class="icon-btn" id="btn-open-shortcuts" title="Keyboard Shortcuts (?)" aria-label="Open Keyboard Shortcuts">
+            <svg viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="6" x2="6.01" y1="9" y2="9"/><line x1="10" x2="10.01" y1="9" y2="9"/><line x1="14" x2="14.01" y1="9" y2="9"/><line x1="18" x2="18.01" y1="9" y2="9"/><line x1="8" x2="16" y1="13" y2="13"/></svg>
+          </button>
+          <!-- Export Tasks JSON -->
+          <button class="icon-btn" id="btn-export" title="Export Tasks (JSON)" aria-label="Export Tasks">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          </button>
+          <!-- Import Tasks JSON -->
+          <button class="icon-btn" id="btn-import-trigger" title="Import Tasks (JSON)" aria-label="Import Tasks">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+          </button>
+          <!-- Theme Toggle (Light -> Dark -> Blue) -->
+          <button class="icon-btn" id="btn-theme-toggle" title="Switch Theme (Light, Dark, Custom Blue)" aria-label="Switch Theme">
+            <svg id="theme-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Task Completion Progress Bar -->
+      <div class="progress-section">
+        <div class="progress-labels">
+          <span id="progress-text">0 of 0 tasks completed</span>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==========================================
+         TASK INPUT & VOICE RECOGNITION
+         ========================================== -->
+    <section class="task-input-card">
+      <div class="task-input-main">
+        <input
+          type="text"
+          id="task-title-input"
+          class="task-main-input"
+          placeholder="Add a new task... (or speak via microphone)"
+          autocomplete="off"
+        />
+        <!-- Voice-to-Text Button (Supports 'add subtask to [task] [subtask]') -->
+        <button id="btn-voice-input" class="voice-btn" title="Voice Input (Say 'add subtask to [task] [subtask]')">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        </button>
+        <button id="btn-add-task" class="add-task-btn">
+          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Add Task</span>
+        </button>
+      </div>
+
+      <!-- Voice Listening Active Banner -->
+      <div id="voice-banner" class="voice-banner">
+        <span id="voice-status-text">🎙️ Listening... Speak your task or say "add subtask to [task] [subtask]"</span>
+        <button id="btn-stop-voice" class="subtask-btn" style="padding: 0.2rem 0.5rem;">Done</button>
+      </div>
+
+      <!-- Voice Feedback Banner -->
+      <div id="voice-feedback" class="voice-feedback"></div>
+
+      <!-- Expandable Options Toggle -->
+      <div>
+        <button type="button" id="toggle-details-btn" class="task-details-toggle">
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          <span>Priority, Category, Due Date, Recurrence & Rich Notes</span>
+        </button>
+      </div>
+
+      <!-- Expandable Advanced Details Panel -->
+      <div id="task-details-panel" class="task-details-panel">
+        <div class="details-grid">
+          <!-- Priority -->
+          <div class="form-group">
+            <label for="task-priority">Priority</label>
+            <select id="task-priority" class="form-select">
+              <option value="medium">Medium</option>
+              <option value="urgent">Urgent</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+
+          <!-- Category -->
+          <div class="form-group">
+            <label for="task-category">Category</label>
+            <select id="task-category" class="form-select">
+              <option value="Work">Work</option>
+              <option value="Personal">Personal</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Health">Health</option>
+              <option value="Learning">Learning</option>
+            </select>
+          </div>
+
+          <!-- Due Date & Time -->
+          <div class="form-group">
+            <label for="task-due-date">Due Date</label>
+            <input type="date" id="task-due-date" class="form-input" />
+          </div>
+
+          <!-- Recurring Tasks Capability (Pro Feature) -->
+          <div class="form-group">
+            <label for="task-recurrence">Recurrence</label>
+            <select id="task-recurrence" class="form-select">
+              <option value="none">None (Single Task)</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Rich Text Notes (Pro Feature) -->
+        <div class="form-group">
+          <label>Rich Text Notes</label>
+          <div class="richtext-toolbar">
+            <button type="button" class="rt-btn" onclick="formatRichText('bold')" title="Bold (Ctrl+B)"><b>B</b></button>
+            <button type="button" class="rt-btn" onclick="formatRichText('italic')" title="Italic (Ctrl+I)"><i>I</i></button>
+            <button type="button" class="rt-btn" onclick="formatRichText('strikeThrough')" title="Strikethrough"><s>S</s></button>
+            <button type="button" class="rt-btn" onclick="formatRichText('insertUnorderedList')" title="Bullet List">• List</button>
+            <button type="button" class="rt-btn" onclick="formatRichText('formatBlock', '<h3>')" title="Heading">H3</button>
+          </div>
+          <div id="task-notes-editor" class="richtext-editor" contenteditable="true" placeholder="Add formatted task notes..."></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SEARCH, CATEGORIES & FILTERS BAR
+         ========================================== -->
+    <section class="controls-bar">
+      <div class="search-row">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Search tasks by title, category, notes... (Ctrl+K)" />
+        </div>
+        <select id="sort-select" class="sort-select" title="Sort Tasks">
+          <option value="order">Sort: Custom Drag Order</option>
+          <option value="dueDate">Sort: Due Date (Earliest)</option>
+          <option value="priority">Sort: Priority (Urgent first)</option>
+          <option value="title">Sort: Title (A-Z)</option>
+          <option value="created">Sort: Recently Added</option>
+        </select>
+      </div>
+
+      <!-- Filter Pills -->
+      <div class="filter-pills" id="status-filters">
+        <button class="filter-pill active" data-filter="all">All <span class="filter-count" id="count-all">0</span></button>
+        <button class="filter-pill" data-filter="active">Active <span class="filter-count" id="count-active">0</span></button>
+        <button class="filter-pill" data-filter="completed">Completed <span class="filter-count" id="count-completed">0</span></button>
+        <button class="filter-pill" data-filter="urgent">Urgent</button>
+        <button class="filter-pill" data-filter="recurring">Recurring</button>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TASK LIST
+         ========================================== -->
+    <main>
+      <ul id="task-list" class="task-list"></ul>
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);">No tasks found</h3>
+        <p style="font-size: 0.9rem;">Add a task above or use the voice assistant to get organized.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Hidden Import File Input -->
+  <input type="file" id="import-file-input" accept=".json" />
+
+  <!-- ==========================================
+       MODAL 1: POMODORO TIMER (Pro Feature)
+       ========================================== -->
+  <div class="modal-overlay" id="pomo-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Pomodoro Focus Timer
+        </h2>
+        <button class="modal-close" onclick="closeModal('pomo-modal')">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="pomo-display">
+        <div class="pomo-mode-tabs">
+          <button class="pomo-tab active" onclick="setPomoMode('work')">Work (25m)</button>
+          <button class="pomo-tab" onclick="setPomoMode('shortBreak')">Short Break (5m)</button>
+          <button class="pomo-tab" onclick="setPomoMode('longBreak')">Long Break (15m)</button>
+        </div>
+        <div class="pomo-time" id="pomo-time-display">25:00</div>
+        <div class="pomo-controls">
+          <button class="pomo-btn start" id="pomo-toggle-btn" onclick="togglePomodoro()">Start</button>
+          <button class="pomo-btn reset" onclick="resetPomodoro()">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 2: ACTIVITY ANALYTICS (Pro Feature)
+       ========================================== -->
+  <div class="modal-overlay" id="analytics-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Activity Analytics
+        </h2>
+        <button class="modal-close" onclick="closeModal('analytics-modal')">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="analytics-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">Total Created</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-completed">0</div>
+          <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-rate">0%</div>
+          <div class="stat-label">Completion Rate</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-subtasks">0</div>
+          <div class="stat-label">Sub-tasks Done</div>
+        </div>
+      </div>
+      <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--text-primary);">Priority Distribution</h4>
+      <div class="analytics-bars" id="analytics-priority-bars"></div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3: KEYBOARD SHORTCUTS (Pro Feature)
+       ========================================== -->
+  <div class="modal-overlay" id="shortcuts-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/></svg>
+          Keyboard Shortcuts
+        </h2>
+        <button class="modal-close" onclick="closeModal('shortcuts-modal')">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="shortcuts-list">
+        <div class="shortcut-row"><span>Quick Add Task Focus</span><span class="shortcut-key">N</span></div>
+        <div class="shortcut-row"><span>Global Search</span><span class="shortcut-key">Ctrl / Cmd + K</span></div>
+        <div class="shortcut-row"><span>Pomodoro Timer</span><span class="shortcut-key">P</span></div>
+        <div class="shortcut-row"><span>Toggle Theme</span><span class="shortcut-key">T</span></div>
+        <div class="shortcut-row"><span>Open Analytics</span><span class="shortcut-key">A</span></div>
+        <div class="shortcut-row"><span>Keyboard Help</span><span class="shortcut-key">?</span></div>
+        <div class="shortcut-row"><span>Close Any Modal</span><span class="shortcut-key">Esc</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       FOOTER (Requested Feature #6)
+       ========================================== -->
+  <footer class="app-footer">
+    Powered by <a href="https://www.diopakistan.com" target="_blank" rel="noopener noreferrer">DIO Pakistan</a>
+  </footer>
+
+  <!-- =========================================================
+       VANILLA JAVASCRIPT APPLICATION LOGIC
+       ========================================================= -->
+  <script>
+    /* =========================================================
+       STATE MANAGEMENT & LOCAL STORAGE
+       ========================================================= */
+    const STORAGE_KEY = 'dio_todos_standalone_v1';
+    const THEME_KEY = 'dio_theme_standalone_v1';
+
+    let todos = [];
+    let currentFilter = 'all';
+    let searchQuery = '';
+    let sortMethod = 'order';
+
+    // Sound alert generator using Web Audio API (No external sound files required)
+    function playBeep(freq = 600, duration = 0.15, type = 'sine') {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {
+        // audio playback might be restricted before user gesture
+      }
+    }
+
+    function initData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          todos = JSON.parse(saved);
+        } catch (e) {
+          todos = [];
+        }
+      } else {
+        // Initial sample tasks
+        todos = [
+          {
+            id: 'task-1',
+            title: 'Welcome to DIO To-Do List! 🚀',
+            category: 'Work',
+            priority: 'urgent',
+            completed: false,
+            createdAt: new Date().toISOString(),
+            subtasks: [
+              { id: 'sub-1', title: 'Try adding a subtask with voice or form', completed: true },
+              { id: 'sub-2', title: 'Switch between Light, Dark & Blue themes', completed: false }
+            ],
+            notes: '<p>You can format notes with <b>bold</b>, <i>italic</i>, or lists!</p>',
+            recurrence: 'none',
+            dueDate: new Date().toISOString().split('T')[0]
+          },
+          {
+            id: 'task-2',
+            title: 'Test voice command: "add subtask to [task] [subtask]"',
+            category: 'Personal',
+            priority: 'high',
+            completed: false,
+            createdAt: new Date().toISOString(),
+            subtasks: [],
+            recurrence: 'daily'
+          }
+        ];
+        saveTodos();
+      }
+    }
+
+    function saveTodos() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+      render();
+    }
+
+    /* =========================================================
+       THEME CONTROLLER (Light, Dark, Custom Blue)
+       ========================================================= */
+    const themes = ['light', 'dark', 'blue'];
+    let currentTheme = localStorage.getItem(THEME_KEY) || 'light';
+
+    function applyTheme(theme) {
+      currentTheme = theme;
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem(THEME_KEY, theme);
+
+      const icon = document.getElementById('theme-icon');
+      if (theme === 'dark') {
+        icon.innerHTML = '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>';
+      } else if (theme === 'blue') {
+        icon.innerHTML = '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>';
+      } else {
+        icon.innerHTML = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>';
+      }
+    }
+
+    function cycleTheme() {
+      const nextIndex = (themes.indexOf(currentTheme) + 1) % themes.length;
+      applyTheme(themes[nextIndex]);
+      playBeep(450, 0.08);
+    }
+
+    /* =========================================================
+       DATE HEADER FORMATTER
+       ========================================================= */
+    function updateHeaderDate() {
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('header-date').textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    /* =========================================================
+       RICH TEXT HELPER
+       ========================================================= */
+    function formatRichText(cmd, val = null) {
+      document.execCommand(cmd, false, val);
+      document.getElementById('task-notes-editor').focus();
+    }
+
+    /* =========================================================
+       VOICE-TO-TEXT WITH SUBTASK RECOGNITION
+       ========================================================= */
+    let recognition = null;
+    let isListening = false;
+
+    function initSpeechRecognition() {
+      const SpeechClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechClass) return;
+
+      recognition = new SpeechClass();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        isListening = true;
+        document.getElementById('btn-voice-input').classList.add('listening');
+        document.getElementById('voice-banner').classList.add('active');
+        hideVoiceFeedback();
+      };
+
+      recognition.onresult = (event) => {
+        let interim = '';
+        let final = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            final += event.results[i][0].transcript;
+          } else {
+            interim += event.results[i][0].transcript;
+          }
+        }
+
+        if (interim) {
+          if (/^\s*add\s+(?:a\s+)?sub[- ]?task\s+to\b/i.test(interim)) {
+            document.getElementById('voice-status-text').textContent = `🎙️ Voice Command: "${interim}"`;
+          } else {
+            document.getElementById('task-title-input').value = interim;
+          }
+        }
+
+        if (final) {
+          handleVoiceTranscript(final.trim());
+        }
+      };
+
+      recognition.onerror = (event) => {
+        stopVoiceListening();
+        showVoiceFeedback('Voice recognition error: ' + event.error, 'error');
+      };
+
+      recognition.onend = () => {
+        stopVoiceListening();
+      };
+    }
+
+    function toggleVoiceListening() {
+      if (!recognition) {
+        alert('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
+        return;
+      }
+      if (isListening) {
+        recognition.stop();
+      } else {
+        recognition.start();
+      }
+    }
+
+    function stopVoiceListening() {
+      isListening = false;
+      document.getElementById('btn-voice-input').classList.remove('listening');
+      document.getElementById('voice-banner').classList.remove('active');
+    }
+
+    function showVoiceFeedback(msg, type = 'success') {
+      const fb = document.getElementById('voice-feedback');
+      fb.className = `voice-feedback ${type}`;
+      fb.textContent = msg;
+      setTimeout(() => { hideVoiceFeedback(); }, 5000);
+    }
+
+    function hideVoiceFeedback() {
+      const fb = document.getElementById('voice-feedback');
+      fb.style.display = 'none';
+      fb.className = 'voice-feedback';
+    }
+
+    // Parses: 'add subtask to [task name] [subtask name]'
+    function handleVoiceTranscript(transcript) {
+      const cleaned = transcript.replace(/[.,!?;]+$/, '').trim();
+      const commandRegex = /^\s*add\s+(?:a\s+|new\s+)?sub[- ]?tasks?\s+to\s+(.+)$/i;
+      const match = cleaned.match(commandRegex);
+
+      if (match) {
+        const remainder = match[1].trim();
+        const remLower = remainder.toLowerCase();
+
+        // Sort todos by title length descending to match longest task title
+        const sorted = [...todos].sort((a, b) => b.title.length - a.title.length);
+        let foundTodo = null;
+        let subtaskTitle = '';
+
+        for (const todo of sorted) {
+          const tLower = todo.title.trim().toLowerCase();
+          if (remLower.startsWith(tLower)) {
+            let part = remainder.slice(todo.title.trim().length).trim();
+            part = part.replace(/^[:\-\s]+/, '');
+            part = part.replace(/^(?:called|named|to|saying)\s+/i, '');
+            if (part) {
+              foundTodo = todo;
+              subtaskTitle = part;
+              break;
+            }
+          }
+        }
+
+        if (foundTodo && subtaskTitle) {
+          addSubtask(foundTodo.id, subtaskTitle);
+          document.getElementById('task-title-input').value = '';
+          playBeep(700, 0.15);
+          showVoiceFeedback(`Added subtask "${subtaskTitle}" to "${foundTodo.title}"`, 'success');
+          return;
+        } else {
+          showVoiceFeedback(`Could not find a task matching "${remainder}".`, 'error');
+          document.getElementById('task-title-input').value = '';
+          return;
+        }
+      }
+
+      // Normal task speech-to-text
+      document.getElementById('task-title-input').value = cleaned;
+    }
+
+    /* =========================================================
+       CRUD TASK OPERATIONS
+       ========================================================= */
+    function addTask() {
+      const titleInput = document.getElementById('task-title-input');
+      const title = titleInput.value.trim();
+      if (!title) return;
+
+      // Also check if text is a manual subtask voice-style command
+      const match = title.match(/^\s*add\s+(?:a\s+|new\s+)?sub[- ]?tasks?\s+to\s+(.+)$/i);
+      if (match) {
+        handleVoiceTranscript(title);
+        return;
+      }
+
+      const priority = document.getElementById('task-priority').value;
+      const category = document.getElementById('task-category').value;
+      const dueDate = document.getElementById('task-due-date').value;
+      const recurrence = document.getElementById('task-recurrence').value;
+      const notesEditor = document.getElementById('task-notes-editor');
+      const notes = notesEditor.innerHTML.trim();
+
+      const newTask = {
+        id: 'task-' + Date.now(),
+        title,
+        priority,
+        category,
+        dueDate: dueDate || undefined,
+        recurrence,
+        notes: notes !== '<br>' && notes ? notes : undefined,
+        completed: false,
+        createdAt: new Date().toISOString(),
+        subtasks: []
+      };
+
+      todos.unshift(newTask);
+      saveTodos();
+      playBeep(650, 0.1);
+
+      // Reset fields
+      titleInput.value = '';
+      notesEditor.innerHTML = '';
+      document.getElementById('task-due-date').value = '';
+      document.getElementById('task-details-panel').classList.remove('open');
+    }
+
+    function toggleTask(id) {
+      const task = todos.find(t => t.id === id);
+      if (!task) return;
+
+      task.completed = !task.completed;
+
+      // Handle recurrence completion (advance due date if recurring)
+      if (task.completed && task.recurrence && task.recurrence !== 'none') {
+        const d = task.dueDate ? new Date(task.dueDate) : new Date();
+        if (task.recurrence === 'daily') d.setDate(d.getDate() + 1);
+        else if (task.recurrence === 'weekly') d.setDate(d.getDate() + 7);
+        else if (task.recurrence === 'monthly') d.setMonth(d.getMonth() + 1);
+
+        task.completed = false;
+        task.dueDate = d.toISOString().split('T')[0];
+        if (task.subtasks) task.subtasks.forEach(s => s.completed = false);
+        playBeep(880, 0.2);
+      } else {
+        playBeep(task.completed ? 800 : 400, 0.12);
+      }
+
+      saveTodos();
+    }
+
+    function deleteTask(id) {
+      todos = todos.filter(t => t.id !== id);
+      saveTodos();
+      playBeep(300, 0.1);
+    }
+
+    function addSubtask(taskId, subtaskTitle) {
+      const task = todos.find(t => t.id === taskId);
+      if (!task || !subtaskTitle.trim()) return;
+
+      if (!task.subtasks) task.subtasks = [];
+      task.subtasks.push({
+        id: 'sub-' + Date.now(),
+        title: subtaskTitle.trim(),
+        completed: false
+      });
+      saveTodos();
+    }
+
+    function toggleSubtask(taskId, subtaskId) {
+      const task = todos.find(t => t.id === taskId);
+      if (!task || !task.subtasks) return;
+      const sub = task.subtasks.find(s => s.id === subtaskId);
+      if (!sub) return;
+      sub.completed = !sub.completed;
+      saveTodos();
+    }
+
+    function deleteSubtask(taskId, subtaskId) {
+      const task = todos.find(t => t.id === taskId);
+      if (!task || !task.subtasks) return;
+      task.subtasks = task.subtasks.filter(s => s.id !== subtaskId);
+      saveTodos();
+    }
+
+    /* =========================================================
+       DRAG AND DROP REORDERING
+       ========================================================= */
+    let draggedTaskId = null;
+
+    function handleDragStart(e, id) {
+      draggedTaskId = id;
+      e.target.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+      document.querySelectorAll('.task-item').forEach(el => el.classList.remove('drag-over'));
+      draggedTaskId = null;
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const item = e.target.closest('.task-item');
+      if (item && item.dataset.id !== draggedTaskId) {
+        item.classList.add('drag-over');
+      }
+    }
+
+    function handleDragLeave(e) {
+      const item = e.target.closest('.task-item');
+      if (item) item.classList.remove('drag-over');
+    }
+
+    function handleDrop(e, targetId) {
+      e.preventDefault();
+      if (!draggedTaskId || draggedTaskId === targetId) return;
+
+      const fromIndex = todos.findIndex(t => t.id === draggedTaskId);
+      const toIndex = todos.findIndex(t => t.id === targetId);
+      if (fromIndex < 0 || toIndex < 0) return;
+
+      const [moved] = todos.splice(fromIndex, 1);
+      todos.splice(toIndex, 0, moved);
+      saveTodos();
+    }
+
+    /* =========================================================
+       RENDER ENGINE
+       ========================================================= */
+    function render() {
+      const taskList = document.getElementById('task-list');
+      const emptyState = document.getElementById('empty-state');
+
+      // Update Counts
+      const totalCount = todos.length;
+      const completedCount = todos.filter(t => t.completed).length;
+      const activeCount = totalCount - completedCount;
+
+      document.getElementById('count-all').textContent = totalCount;
+      document.getElementById('count-active').textContent = activeCount;
+      document.getElementById('count-completed').textContent = completedCount;
+
+      // Update Progress Bar
+      const pct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('progress-pct').textContent = pct + '%';
+      document.getElementById('progress-text').textContent = `${completedCount} of ${totalCount} tasks completed`;
+
+      // Filter tasks
+      let filtered = todos.filter(task => {
+        if (currentFilter === 'active') return !task.completed;
+        if (currentFilter === 'completed') return task.completed;
+        if (currentFilter === 'urgent') return task.priority === 'urgent';
+        if (currentFilter === 'recurring') return task.recurrence && task.recurrence !== 'none';
+        return true;
+      });
+
+      // Search filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter(t =>
+          t.title.toLowerCase().includes(q) ||
+          (t.category && t.category.toLowerCase().includes(q)) ||
+          (t.notes && t.notes.toLowerCase().includes(q)) ||
+          (t.subtasks && t.subtasks.some(s => s.title.toLowerCase().includes(q)))
+        );
+      }
+
+      // Sort tasks
+      if (sortMethod === 'dueDate') {
+        filtered.sort((a, b) => (a.dueDate || '9999') > (b.dueDate || '9999') ? 1 : -1);
+      } else if (sortMethod === 'priority') {
+        const order = { urgent: 0, high: 1, medium: 2, low: 3 };
+        filtered.sort((a, b) => (order[a.priority] || 2) - (order[b.priority] || 2));
+      } else if (sortMethod === 'title') {
+        filtered.sort((a, b) => a.title.localeCompare(b.title));
+      } else if (sortMethod === 'created') {
+        filtered.sort((a, b) => (b.createdAt || '') > (a.createdAt || '') ? 1 : -1);
+      }
+
+      if (filtered.length === 0) {
+        taskList.innerHTML = '';
+        emptyState.style.display = 'flex';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      taskList.innerHTML = filtered.map(task => {
+        const isOverdue = task.dueDate && task.dueDate < todayStr && !task.completed;
+        const subtasksTotal = task.subtasks ? task.subtasks.length : 0;
+        const subtasksDone = task.subtasks ? task.subtasks.filter(s => s.completed).length : 0;
+
+        return `
+          <li
+            class="task-item ${task.completed ? 'completed-task' : ''}"
+            draggable="true"
+            data-id="${task.id}"
+            ondragstart="handleDragStart(event, '${task.id}')"
+            ondragend="handleDragEnd(event)"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDrop(event, '${task.id}')"
+          >
+            <div class="task-main-row">
+              <span class="drag-handle" title="Drag to reorder">
+                <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+              </span>
+              <input
+                type="checkbox"
+                class="task-checkbox"
+                ${task.completed ? 'checked' : ''}
+                onchange="toggleTask('${task.id}')"
+                aria-label="Toggle task completion"
+              />
+              <div class="task-content">
+                <div class="task-title-row">
+                  <span class="task-title-text">${escapeHtml(task.title)}</span>
+                  <span class="badge badge-${task.priority}">${task.priority}</span>
+                  <span class="badge badge-category">${escapeHtml(task.category || 'General')}</span>
+                  ${task.recurrence && task.recurrence !== 'none' ? `<span class="badge badge-recurring">↻ ${task.recurrence}</span>` : ''}
+                </div>
+
+                <div class="task-meta-row">
+                  ${task.dueDate ? `
+                    <span class="meta-item ${isOverdue ? 'overdue' : ''}">
+                      <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                      ${isOverdue ? 'Overdue: ' : 'Due: '} ${task.dueDate}
+                    </span>
+                  ` : ''}
+                  ${subtasksTotal > 0 ? `
+                    <span class="meta-item">
+                      <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                      ${subtasksDone}/${subtasksTotal} subtasks
+                    </span>
+                  ` : ''}
+                </div>
+
+                ${task.notes ? `<div class="task-notes-preview">${task.notes}</div>` : ''}
+
+                <!-- Subtasks Drawer -->
+                <div class="subtasks-box">
+                  <div class="subtask-header">
+                    <span>Subtasks (${subtasksDone}/${subtasksTotal})</span>
+                  </div>
+                  ${task.subtasks && task.subtasks.length > 0 ? `
+                    <ul class="subtask-list">
+                      ${task.subtasks.map(sub => `
+                        <li class="subtask-item">
+                          <label class="subtask-label ${sub.completed ? 'completed' : ''}">
+                            <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" />
+                            <span>${escapeHtml(sub.title)}</span>
+                          </label>
+                          <button class="action-btn delete-btn" onclick="deleteSubtask('${task.id}', '${sub.id}')" title="Delete subtask">
+                            <svg viewBox="0 0 24 24" width="13" height="13" stroke="currentColor" fill="none" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          </button>
+                        </li>
+                      `).join('')}
+                    </ul>
+                  ` : ''}
+
+                  <!-- Add Subtask Input Form -->
+                  <form class="subtask-add-form" onsubmit="event.preventDefault(); const inp = this.querySelector('input'); addSubtask('${task.id}', inp.value); inp.value='';">
+                    <input type="text" class="subtask-input" placeholder="Add sub-task item..." required />
+                    <button type="submit" class="subtask-btn">+ Add</button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Delete Action Button -->
+              <div class="task-actions">
+                <button class="action-btn delete-btn" onclick="deleteTask('${task.id}')" title="Delete task" aria-label="Delete task">
+                  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </li>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    /* =========================================================
+       FLOATING SCROLL TO TOP (Requested Feature #3)
+       ========================================================= */
+    const scrollTopBtn = document.getElementById('scroll-top-btn');
+
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 260) {
+        scrollTopBtn.classList.add('visible');
+      } else {
+        scrollTopBtn.classList.remove('visible');
+      }
+    });
+
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    /* =========================================================
+       EXPORT & IMPORT JSON
+       ========================================================= */
+    document.getElementById('btn-export').addEventListener('click', () => {
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(todos, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `dio-todos-backup-${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      playBeep(750, 0.1);
+    });
+
+    const fileInput = document.getElementById('import-file-input');
+    document.getElementById('btn-import-trigger').addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (Array.isArray(imported)) {
+            todos = imported;
+            saveTodos();
+            alert('Tasks imported successfully!');
+            playBeep(850, 0.15);
+          } else {
+            alert('Invalid JSON file format.');
+          }
+        } catch (err) {
+          alert('Error reading JSON file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      fileInput.value = '';
+    });
+
+    /* =========================================================
+       POMODORO TIMER IMPLEMENTATION (Pro Feature)
+       ========================================================= */
+    let pomoMode = 'work'; // 'work', 'shortBreak', 'longBreak'
+    let pomoSecondsRemaining = 25 * 60;
+    let pomoInterval = null;
+    let isPomoRunning = false;
+
+    const pomoDurations = {
+      work: 25 * 60,
+      shortBreak: 5 * 60,
+      longBreak: 15 * 60
+    };
+
+    function setPomoMode(mode) {
+      pomoMode = mode;
+      pomoSecondsRemaining = pomoDurations[mode];
+      clearInterval(pomoInterval);
+      isPomoRunning = false;
+      document.getElementById('pomo-toggle-btn').textContent = 'Start';
+      document.getElementById('pomo-toggle-btn').className = 'pomo-btn start';
+
+      document.querySelectorAll('.pomo-tab').forEach(t => t.classList.remove('active'));
+      const activeTab = Array.from(document.querySelectorAll('.pomo-tab')).find(t => t.textContent.toLowerCase().includes(mode.toLowerCase()));
+      if (activeTab) activeTab.classList.add('active');
+
+      updatePomoDisplay();
+    }
+
+    function togglePomodoro() {
+      if (isPomoRunning) {
+        clearInterval(pomoInterval);
+        isPomoRunning = false;
+        document.getElementById('pomo-toggle-btn').textContent = 'Start';
+        document.getElementById('pomo-toggle-btn').className = 'pomo-btn start';
+      } else {
+        isPomoRunning = true;
+        document.getElementById('pomo-toggle-btn').textContent = 'Pause';
+        document.getElementById('pomo-toggle-btn').className = 'pomo-btn pause';
+
+        pomoInterval = setInterval(() => {
+          if (pomoSecondsRemaining > 0) {
+            pomoSecondsRemaining--;
+            updatePomoDisplay();
+          } else {
+            clearInterval(pomoInterval);
+            isPomoRunning = false;
+            playBeep(900, 0.5, 'square');
+            alert(`Pomodoro ${pomoMode} finished! Take a moment to refresh.`);
+            setPomoMode(pomoMode === 'work' ? 'shortBreak' : 'work');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetPomodoro() {
+      clearInterval(pomoInterval);
+      isPomoRunning = false;
+      pomoSecondsRemaining = pomoDurations[pomoMode];
+      document.getElementById('pomo-toggle-btn').textContent = 'Start';
+      document.getElementById('pomo-toggle-btn').className = 'pomo-btn start';
+      updatePomoDisplay();
+    }
+
+    function updatePomoDisplay() {
+      const mins = Math.floor(pomoSecondsRemaining / 60);
+      const secs = pomoSecondsRemaining % 60;
+      document.getElementById('pomo-time-display').textContent =
+        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    /* =========================================================
+       ACTIVITY ANALYTICS (Pro Feature)
+       ========================================================= */
+    function updateAnalytics() {
+      const total = todos.length;
+      const completed = todos.filter(t => t.completed).length;
+      const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      let subtasksDone = 0;
+      todos.forEach(t => {
+        if (t.subtasks) subtasksDone += t.subtasks.filter(s => s.completed).length;
+      });
+
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-completed').textContent = completed;
+      document.getElementById('stat-rate').textContent = rate + '%';
+      document.getElementById('stat-subtasks').textContent = subtasksDone;
+
+      // Priority bars
+      const priorities = ['urgent', 'high', 'medium', 'low'];
+      const counts = { urgent: 0, high: 0, medium: 0, low: 0 };
+      todos.forEach(t => { counts[t.priority] = (counts[t.priority] || 0) + 1; });
+
+      const container = document.getElementById('analytics-priority-bars');
+      container.innerHTML = priorities.map(p => {
+        const count = counts[p];
+        const barPct = total > 0 ? Math.round((count / total) * 100) : 0;
+        return `
+          <div class="bar-row">
+            <div class="bar-meta">
+              <span style="text-transform: capitalize;">${p}</span>
+              <span>${count} tasks (${barPct}%)</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width: ${barPct}%; background: var(--priority-${p});"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* =========================================================
+       MODAL CONTROLLERS
+       ========================================================= */
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+      if (id === 'analytics-modal') updateAnalytics();
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    // Modal click out to close
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('open');
+      });
+    });
+
+    /* =========================================================
+       EVENT LISTENERS & KEYBOARD SHORTCUTS (Pro Feature)
+       ========================================================= */
+    document.getElementById('btn-theme-toggle').addEventListener('click', cycleTheme);
+    document.getElementById('btn-open-pomo').addEventListener('click', () => openModal('pomo-modal'));
+    document.getElementById('btn-open-analytics').addEventListener('click', () => openModal('analytics-modal'));
+    document.getElementById('btn-open-shortcuts').addEventListener('click', () => openModal('shortcuts-modal'));
+
+    document.getElementById('btn-add-task').addEventListener('click', addTask);
+    document.getElementById('task-title-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addTask();
+    });
+
+    document.getElementById('btn-voice-input').addEventListener('click', toggleVoiceListening);
+    document.getElementById('btn-stop-voice').addEventListener('click', () => {
+      if (recognition && isListening) recognition.stop();
+    });
+
+    document.getElementById('toggle-details-btn').addEventListener('click', () => {
+      document.getElementById('task-details-panel').classList.toggle('open');
+    });
+
+    // Filter pills
+    document.querySelectorAll('.filter-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentFilter = pill.dataset.filter;
+        render();
+      });
+    });
+
+    // Search and Sort
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      render();
+    });
+
+    document.getElementById('sort-select').addEventListener('change', (e) => {
+      sortMethod = e.target.value;
+      render();
+    });
+
+    // Keyboard Shortcuts Listener
+    document.addEventListener('keydown', (e) => {
+      // If typing inside an input or editable field, don't trigger global single-key shortcuts
+      const activeEl = document.activeElement;
+      const isInput = activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.isContentEditable;
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        document.getElementById('search-input').focus();
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open'));
+        return;
+      }
+
+      if (isInput) return;
+
+      if (e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        document.getElementById('task-title-input').focus();
+      } else if (e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        openModal('pomo-modal');
+      } else if (e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        cycleTheme();
+      } else if (e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        openModal('analytics-modal');
+      } else if (e.key === '?') {
+        e.preventDefault();
+        openModal('shortcuts-modal');
+      }
+    });
+
+    /* =========================================================
+       INITIALIZATION
+       ========================================================= */
+    window.addEventListener('DOMContentLoaded', () => {
+      applyTheme(currentTheme);
+      updateHeaderDate();
+      initData();
+      initSpeechRecognition();
+      updatePomoDisplay();
+    });
+  </script>
+</body>
+</html>

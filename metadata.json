@@ -1,0 +1,6 @@
+{
+  "name": "DIO To-Do List",
+  "description": "A modern, responsive to-do list web application branded for DIO with dark mode, priority tags, categories, due dates, and smooth transitions.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
