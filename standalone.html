@@ -2452,6 +2452,19 @@
       render();
     });
 
+    // Floating Scroll to Top button listener
+    const scrollTopBtn = document.getElementById('scroll-top-btn');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 200) {
+        scrollTopBtn.classList.add('visible');
+      } else {
+        scrollTopBtn.classList.remove('visible');
+      }
+    });
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
     // Keyboard Shortcuts Listener
     document.addEventListener('keydown', (e) => {
       // If typing inside an input or editable field, don't trigger global single-key shortcuts
